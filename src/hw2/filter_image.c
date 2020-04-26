@@ -46,16 +46,14 @@ image make_box_filter(int w)
      to 1. Then use "l1_normalize" to normalize your filter.
      ************************************************************************/
     // make an image of w * w
-    image res = make_image(w, w, 1);
-    // fill all entries to 1
-    for (int i = 0; i < w; i++) {
-        for (int j = 0; j < w; j++) {
-            set_pixel(res, i, j, 1, 1);
-        }
+    image newIm = make_image(w, w, 1);
+    // Fill in 1s in the image
+    for (int i = 0; i < w * w; i++) {
+        newIm.data[i] = 1.0;
     }
-    // normalize the filter
-    l1_normalize(res);
-    return res;
+    // normalize the box filter
+    l1_normalize(newIm);
+    return newIm;
 }
 
 
