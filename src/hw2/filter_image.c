@@ -77,7 +77,6 @@ float convHelper (image filter, int channel, image im, int x, int y, int c){
         }
     }
     return val;
-    
 }
 
 image convolve_image(image im, image filter, int preserve)
@@ -304,11 +303,20 @@ image *sobel_image(image im)
     by calling rst[1]
     ************************************************************************/
     image *rst = calloc(2, sizeof(image));
-
-
-    rst[0] = make_image(im.w, im.h, 1);
-    rst[1] = make_image(im.w, im.h, 1);
-
+    
+    // make gx and gy filters
+    image gx = convolve_image(im, make_gx_filter(),0);
+    image gy = convolve_image(im, make_gy_filter(), 0);
+    // make magnitute and gradient image
+    image magnitute = make_image(im.w, im.h, 1);
+    image gradient = make_image(im.w, im.h, 1);
+    //compute result
+    for (int i = 0; i < gx.w*gx.h;i++){
+        magnitute.data[i] = sqrt(gx.data[i] * gx.data[i] + gy.data[i]*gy.data[i]);
+        gradient.data[i] = atan2(gy.data[i], gx.data[i]);
+    }
+    rst[0] = magnitute;
+    rst[1] = gradient;
     return rst;
 }
 
