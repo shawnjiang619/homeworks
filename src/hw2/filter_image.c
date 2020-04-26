@@ -21,25 +21,18 @@ void l1_normalize(image im)
      values in the image and modifies the image in place.
      ************************************************************************/
     // calculate sum
-    float sum = 0;
-    for (int i = 0; i < im.c; i++) {
-        for (int j = 0; j < im.h; j++) {
-            for (int k = 0; k < im.w; k++) {
-                sum += get_pixel(im, k, j, i);
-            }
-        }
+    float sum = 0.0;
+    for (int i = 0; i < im.c * im.h * im.w; i++) {
+        sum += im.data[i];
     }
+    // If sum is 0.0, there is no point to normalize
+    // it is an empty image
     if (sum == 0.0) {
         return;
     }
-    // divide each value by sum
-    for (int i = 0; i < im.c; i++) {
-        for (int j = 0; j < im.h; j++) {
-            for (int k = 0; k < im.w; k++) {
-                float val = get_pixel(im, k, j, i);
-                set_pixel(im, k, j, i, val / sum);
-            }
-        }
+    // Do division on each pixel
+    for (int i = 0; i < im.h * im.c * im.w; i++) {
+        im.data[i] /= sum;
     }
 }
 
