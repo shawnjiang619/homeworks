@@ -20,19 +20,26 @@ void l1_normalize(image im)
      This function divides each value in an image "im" by the sum of all the
      values in the image and modifies the image in place.
      ************************************************************************/
-    // Get the sum of all values
-    float sum = 0.0;
-    for (int i = 0; i < im.c * im.h * im.w; i++) {
-        sum += im.data[i];
+    // calculate sum
+    float sum = 0;
+    for (int i = 0; i < im.c; i++) {
+        for (int j = 0; j < im.h; j++) {
+            for (int k = 0; k < im.w; k++) {
+                sum += get_pixel(im, k, j, i);
+            }
+        }
     }
-    // If sum is 0.0, there is no point to normalize
-    // it is an empty image
     if (sum == 0.0) {
         return;
     }
-    // Do division on each pixel
-    for (int i = 0; i < im.h * im.c * im.w; i++) {
-        im.data[i] /= sum;
+    // divide each value by sum
+    for (int i = 0; i < im.c; i++) {
+        for (int j = 0; j < im.h; j++) {
+            for (int k = 0; k < im.w; k++) {
+                float val = get_pixel(im, k, j, i);
+                set_pixel(im, k, j, i, val / sum);
+            }
+        }
     }
 }
 
@@ -45,16 +52,19 @@ image make_box_filter(int w)
      width = height = w and number of channels = 1, with all entries equal
      to 1. Then use "l1_normalize" to normalize your filter.
      ************************************************************************/
-    
-    image newIm = make_image(w, w, 1);
-    // Fill in 1s in the image
-    for (int i = 0; i < w * w; i++) {
-        newIm.data[i] = 1.0;
+    // make an image of w * w
+    image res = make_image(w, w, 1);
+    // fill all entries to 1
+    for (int i = 0; i < w; i++) {
+        for (int j = 0; j < w; j++) {
+            set_pixel(res, i, j, 1, 1);
+        }
     }
-    // normalize the box filter
-    l1_normalize(newIm);
-    return newIm;
+    // normalize the filter
+    l1_normalize(res);
+    return res;
 }
+
 
 // a helper function that calculate the appropriate pixel value given a filter
 float convHelper (image filter, int channel, image im, int x, int y, int c){
