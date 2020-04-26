@@ -29,7 +29,12 @@ float nn_interpolate(image im, float x, float y, int c)
       Remember to use the closest "int", not just type-cast because in C that
       will truncate towards zero.
     ************************************************************************/
-    return 0;
+    // find nearest neighbor
+    int lx = round(x);
+    int ly = round(y);
+    // get its pixel
+    float res = get_pixel(im, lx, ly, c);
+    return res;
 }
 
 image nn_resize(image im, int w, int h)
@@ -42,7 +47,25 @@ image nn_resize(image im, int w, int h)
       - Loop over the pixels and map back to the old coordinates.
       - Use nearest-neighbor interpolate to fill in the image.
     ************************************************************************/
-    return make_image(1,1,1);
+    // create image with specific w and h
+    image res = make_image(w, h, im.c);
+    // caluculate the scale of new and old image
+    float w_a = (float)im.w / w;
+    float w_b = -0.5 + 0.5 * w_a;
+    float h_a = (float)im.h / h;
+    float h_b = -0.5 + 0.5 * h_a;
+    for (int k = 0; k < im.c; k++) {
+        for (int j = 0; j < h; j++) {
+            for (int i = 0; i < w; i++) {
+                float x = w_a * i + w_b;
+                float y = h_a * j + h_b;
+                // calculate new pixel value
+                float val = nn_interpolate(im, x, y, k);
+                set_pixel(res, i, j, k, val);
+            }
+        }
+    }
+    return res;
 }
 
 float bilinear_interpolate(image im, float x, float y, int c)
@@ -53,7 +76,16 @@ float bilinear_interpolate(image im, float x, float y, int c)
       a floating column value "x", row value "y" and integer channel "c".
       It interpolates and returns the interpolated value.
     ************************************************************************/
-    return 0;
+    // find distances
+    float dx = x - floor(x);
+    float dy = y - floor(y);
+    // calculate four nearby points
+    float up_left = get_pixel(im, floor(x), floor(y), c);
+    float up_right = get_pixel(im, floor(x)+1, floor(y), c);
+    float down_left = get_pixel(im, floor(x), floor(y)+1, c);
+    float down_right = get_pixel(im, floor(x)+1, floor(y)+1, c);
+    float res =   up_left*(1-dx)*(1-dy) + up_right*dx*(1-dy) + down_left*(1-dx)*dy + down_right*dx*dy;
+    return res;
 }
 
 image bilinear_resize(image im, int w, int h)
@@ -66,33 +98,23 @@ image bilinear_resize(image im, int w, int h)
       - Loop over the pixels and map back to the old coordinates.
       - Use bilinear interpolate to fill in the image.
     ************************************************************************/
-    return make_image(1,1,1);
-}
-
-/***************************** Box filter *******************************
-  We want to create a box filter. We will only use square box filters.
-  One way to do this is make an image,fill it in with all 1s, and then
-  normalize it.That's what we'll do because the normalization function may
-  be useful in the future!
-************************************************************************/
-void l1_normalize(image im)
-{
-    // TODO
-    /***********************************************************************
-      This function divides each value in an image "im" by the sum of all the
-      values in the image and modifies the image in place.
-    ************************************************************************/
-}
-
-image make_box_filter(int w)
-{
-    // TODO
-    /***********************************************************************
-      This function makes a square filter of size "w x w". Hint:
-      Change the "make_image" arguments so that it is a square image of
-      width = height = w and number of channels = 1, with all entries equal
-      to 1. Then use "l1_normalize" to normalize your filter.
-    ************************************************************************/
-
-    return make_image(1,1,1);
+    // caluculate the scale of new and old image
+    float w_a = (float)im.w / w;
+    float w_b = -0.5 + 0.5 * w_a;
+    float h_a = (float)im.h / h;
+    float h_b = -0.5 + 0.5 * h_a;
+    // create new image
+    image res = make_image(w, h, im.c);
+    for (int k = 0; k < im.c; k++) {
+        for (int j = 0; j < h; j++) {
+            for (int i = 0; i < w; i++) {
+                float x = w_a * i + w_b;
+                float y = h_a * j + h_b;
+                // calculate new pixel value
+                float val = bilinear_interpolate(im, x, y, k);
+                set_pixel(res, i, j, k, val);
+            }
+        }
+    }
+    return res;
 }
