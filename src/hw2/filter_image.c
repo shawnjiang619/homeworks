@@ -20,19 +20,18 @@ void l1_normalize(image im)
      This function divides each value in an image "im" by the sum of all the
      values in the image and modifies the image in place.
      ************************************************************************/
-    // calculate sum
     float sum = 0.0;
+    // calculate sum value
     for (int i = 0; i < im.c * im.h * im.w; i++) {
         sum += im.data[i];
     }
-    // If sum is 0.0, there is no point to normalize
-    // it is an empty image
+    // return directly if sum is 0
     if (sum == 0.0) {
         return;
     }
-    // Do division on each pixel
-    for (int i = 0; i < im.h * im.c * im.w; i++) {
-        im.data[i] /= sum;
+    // do division on each pixel
+    for (int i = 0; i < im.c * im.h * im.w; i++) {
+        im.data[i] = im.data[i] / sum;
     }
 }
 
@@ -45,15 +44,15 @@ image make_box_filter(int w)
      width = height = w and number of channels = 1, with all entries equal
      to 1. Then use "l1_normalize" to normalize your filter.
      ************************************************************************/
-    // make an image of w * w
-    image newIm = make_image(w, w, 1);
-    // Fill in 1s in the image
+    // make the box filter image
+    image res = make_image(w, w, 1);
+    // make all pixel value 1
     for (int i = 0; i < w * w; i++) {
-        newIm.data[i] = 1.0;
+        res.data[i] = 1.0;
     }
-    // normalize the box filter
-    l1_normalize(newIm);
-    return newIm;
+    // normalize the filter
+    l1_normalize(res);
+    return res;
 }
 
 
