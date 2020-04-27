@@ -200,21 +200,25 @@ image make_gaussian_filter(float sigma)
 
     Return the Gaussian filter.
     ************************************************************************/
+
     // calculate the kernel size
     int size = ceil(sigma * 6);
     if (size % 2 == 0){
         size = size+1;
     }
-    image res = make_image(size,size,1);
+    image im = make_image(size, size, 1);
     // fill the kernel with the probability density function
-    for (int i = 0; i < size; i++){
-        for (int j = 0; j < size; j++){
-            float num = 1.0 / (2 * M_PI * sigma * sigma) * exp(-(i-(size/2) * i-(size/2) + j-(size/2) * j-(size/2)) / (2 * sigma * sigma));
-            set_pixel(res,i, j, 0, num);
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            int x = i - (size - 1) / 2;
+            int y = j - (size - 1) / 2;
+            float num = 1.0 / (TWOPI * sigma * sigma) * exp(-(x * x + y * y) / (2 * sigma * sigma));
+            set_pixel(im, i, j, 0, num);
         }
     }
-    //l1_normalize(res);
-    return res;
+    l1_normalize(im);
+    return im;
+    
 }
 
 image add_image(image a, image b)
